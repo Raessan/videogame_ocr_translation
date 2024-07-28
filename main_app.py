@@ -17,7 +17,7 @@ app = Flask(__name__)
 def get_german_text_and_image():
 
     ocr_german.get_chars_from_image()
-    _, _, _, img_characters_segmented = ocr_german.segment_characters_and_plot()
+    _, _, _, img_characters_segmented = ocr_german.segment_characters_and_bbox_image()
 
     # Convert numpy array to PIL image
     if isinstance(img_characters_segmented, np.ndarray):

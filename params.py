@@ -90,8 +90,8 @@ chars_dict = {
     '=': 'equals',
     ' ': 'cursor'
 }
-# File to save words and their translation
-save_file_path = "words.txt"
 # Folder to save and load the NN
 save_cnn_folder = "cnn_model"
 save_cnn_file = "cnn_model.pth"
+# File to save words and their translation
+save_file_path = "words.txt"

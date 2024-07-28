@@ -1,0 +1,9 @@
+torch
+numpy
+opencv-python
+torchvision
+Flask
+Pillow
+pyautogui
+matplotlib
+transformers

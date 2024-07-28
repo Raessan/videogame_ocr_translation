@@ -114,7 +114,8 @@
                 // Remove punctuation marks from the word
                 var cleanedWord = word.replace(/[.,\/#!¿?$%\^&\*;:{}=\-_`'~()]/g, '');
 
-                var url = `https://www.wordreference.com/deen/${cleanedWord}`;
+                //var url = `https://www.wordreference.com/deen/${cleanedWord}`;
+                var url = `https://www.linguee.com/german-english/translation/${cleanedWord}.html`;
                 $('#dictionary-iframe').attr('src', url);
 
                 // Show save button and update label

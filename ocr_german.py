@@ -5,8 +5,6 @@ import matplotlib.pyplot as plt
 import os
 from PIL import Image
 from params import *
-from skimage.feature import hog, local_binary_pattern
-from skimage.metrics import structural_similarity as ssim
 from cnn_train import SimpleCNN, letterbox
 import torch
 from torchvision import datasets
@@ -47,6 +45,11 @@ class OCR:
 
         self.model = None
         self.device = "cpu"
+
+        # Additional plotting data for optimizing parameters and debugging
+        self.img_bw = None
+        self.vertical_histogram = None
+        self.horizontal_histogram = None
 
         if os.path.isfile(os.path.join(self.folder_model, self.name_model)):
             # Count the number of classes (subfolders)
@@ -204,7 +207,8 @@ class OCR:
         # If the number of "1" pixels is greater than the number of "0" pixels, invert the image
         if count_ones > count_zeros:
             img_bw = 1 - img_bw
-
+        # Store data for debugging
+        self.img_bw = img_bw
         # kernel = np.ones((3,3),np.uint8)
         # img_bw = cv2.erode(img_bw,kernel,iterations = 1)
 
@@ -213,8 +217,8 @@ class OCR:
         
         # Vertical histogram to extract lines
         vertical_histogram = np.sum(img_bw_cropped, axis=1)
-        # plt.bar(range(len(vertical_histogram)), vertical_histogram, color='black')
-        # plt.show()
+        # Store data for debugging
+        self.vertical_histogram = vertical_histogram
 
         # Obtain the zero ranges of the vertical histogram
         zero_ranges_vh = self.find_zero_ranges(vertical_histogram, self.min_nonzeros_line)
@@ -238,6 +242,9 @@ class OCR:
             img_line = img_bw_lines[i]
             # Obtain the horizontal histogram of the current line
             horizontal_histogram = np.sum(img_line, axis=0)
+            # Store data for debugging
+            if i==0:
+                self.horizontal_histogram = horizontal_histogram
             # Obtain the zero ranges
             zero_ranges_hh = self.find_zero_ranges(horizontal_histogram, 0)
             # Obtain the character segmentation of each line
@@ -262,7 +269,7 @@ class OCR:
         return img_bw, characters, spaces, characters_boxes
     
     # This function extracts the character of the image and plots the segmentation
-    def segment_characters_and_plot(self):
+    def segment_characters_and_bbox_image(self):
         # Capture the image
         #img = self.capture_screen()
         # Segment the characters. The only needed variable is the characters_boxes
@@ -424,20 +431,37 @@ class OCR:
         self.text = ""
         self.last_hyphen = False
 
+    def plot_region(self):
+        self.segment_characters()
+        cv2.imshow("image", self.img_bw)
+        cv2.waitKey(0)
+
+    def plot_vertical_histogram(self):
+        self.segment_characters()
+        plt.barh(range(len(self.vertical_histogram)), self.vertical_histogram, color='black')
+        plt.show()
+        
+    def plot_horizontal_histogram(self):
+        self.segment_characters()
+        plt.bar(range(len(self.horizontal_histogram)), self.horizontal_histogram, color='black')
+        plt.show()
+
+    def plot_segmentation(self):
+        _, _, _, img_characters_segmented = ocr_object.segment_characters_and_bbox_image()
+        cv2.imshow("image", img_characters_segmented)
+        cv2.waitKey(0)
+
+
 if __name__ == "__main__":
     # Create object
     ocr_object = OCR(region, threshold_binary, min_zeros_between_lines, min_nonzeros_line, min_zeros_between_characters, min_zeros_space, folder_chars, chars_dict, size_characters, save_cnn_folder, save_cnn_file)
+   
+    # These lines are for debug or to help define the parameters
+    #ocr_object.plot_region()
+    #ocr_object.plot_vertical_histogram()
+    #ocr_object.plot_horizontal_histogram()
+    #ocr_object.plot_segmentation()
+    
     # This line is to save ground truth (the text must correspond the image)
+    #ocr_object.save_characters("RAFA gewinnt $448! ")
     ocr_object.ranking_characters()
-    _, _, _, img_characters_segmented = ocr_object.segment_characters_and_plot()
-
-    # # This line is to load the current characters from the folder
-    # descriptors_dir = ocr_object.load_character_descriptors()
-    # # This command is to get the sentence of the current window
-    # ocr_object.get_chars_from_image()
-    # # Print the sentence
-    # print("Detected sentence:\n", ocr_object.text)
-    # # Plot the image of the segmentation
-    # _, _, _, img_characters_segmented = ocr_object.segment_characters_and_plot()
-    #cv2.imshow("image", img_characters_segmented)
-    # cv2.waitKey(0)
