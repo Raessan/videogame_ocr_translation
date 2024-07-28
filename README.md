@@ -62,7 +62,7 @@ The training occurs in `cnn_train.py` and, as expected, achieves accuracy of 100
 
 After training the neural network and saved the weights, we perform inference in `ocr_german.py` as part of the OCR mechanism.
 
-## WEBPAGE
+## Webpage
 
 The webpage does not have any technical issues. The `main_app.py` is the program that connects the webpage with the OCR class.
 
@@ -96,7 +96,7 @@ There are a couple more functionalities that the app handles
 
 - If the last character of a line is a hyphen, it is most likely that the same word has been split in two lines, so the app unifies both segments and deletes the hyphen. If the last character is not a hyphen, then the first word of the next line is separated with a space. If you are labeling this image with the method `save_characters`, you should omit this hyphen.
 
--There is also a special character in my game that appears at the end of some messages indicating that the message is incomplete and will continue when you press the forward button in the videogame. I called this character "cursor" and, for labeling, I just added a final space in the `save_characters` when the message contains this cursor (since that character does not exist in the keyboard). This way, adding this final space in a sentence means that it contains a cursor in the videogame, which is convenient because the space won't hurt the translation.
+- There is also a special character in my game that appears at the end of some messages indicating that the message is incomplete and will continue when you press the forward button in the videogame. I called this character "cursor" and, for labeling, I just added a final space in the `save_characters` when the message contains this cursor (since that character does not exist in the keyboard). This way, adding this final space in a sentence means that it contains a cursor in the videogame, which is convenient because the space won't hurt the translation.
 
 # LIMITATIONS
 
