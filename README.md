@@ -70,7 +70,7 @@ The webpage does not have any technical issues. The `main_app.py` is the program
 
 There are three fundamental steps that must be done before using the APP. First, you have to collect enough data to train the CNN, using mainly the `ocr_german.py` directly. After collecting the data, you have to train the OCR NN using the `cnn_train.py` program. Finally, you can run the whole system for inference and translation using the `main_app.py`.
 
-# Data collection
+## Data collection
 
 For the data collection, it's very important to adapt the parameters in `params.py`, which I have been explaining along the document. The best way to adapt parameters related to the binarization and histogram is to visualize, step by step, the image. This can be accomplished with the functions `plot_region`, `plot_vertical_histogram`, `plot_horizontal_histogram`, and `plot_segmentation`. They can be executed uncommenting their call in `ocr_german.py`.
 
@@ -78,15 +78,15 @@ Once we are happy with the segmentation when calling `plot_segmentation`. We hav
 
 Finally, you can also see the characters stored so far using the `ranking_character` method. It is normal to have an imbalanced dataset because some character appear much more often than others. I tried to have at least 5-10 samples of each, although by that time I already have +400 samples of the most common characters. This didn't hurt the neural network performance. 
 
-# Neural network training
+## Neural network training
 
 To train the NN, just run `cnn_train.py` after collecting enough data. You can define your own NN structure. In my case, a very small and simple network was enough.
 
-# Translation
+## Translation
 
 Using the [transformers](https://huggingface.co/docs/transformers/es/index) library, it's very easy to translate from one language to another, just check if the languages you want to use are defined by the library and you should just change the line: `self.translator = pipeline("translation_de_to_en", model="Helsinki-NLP/opus-mt-de-en")` in `translator.py`.
 
-# Main app
+## Main app
 
 One the CNN is trained, running the main app will launch everything. Every time you request data from the server, the image will undergo the whole pipeline of segmentation, recognition and translation, sending all this data via the [Flask](https://flask.palletsprojects.com/en/3.0.x/) app.
 
