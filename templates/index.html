@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCR and Translate</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- <style>
+       
+    </style> -->
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>OCR and Translate</h1>
+        </div>
+
+        <div class="button-container">
+            <button id="get-button">Get German Text (G)</button>
+            <button id="translate-button">Translate Text (T)</button>
+            <button id="reset-button">Reset Text (R)</button>
+            <button id="everything-button">Get and translate (C)</button>
+        </div>
+
+        <div class="text-section">
+            <h2>German Text</h2>
+            <div id="german-text"></div>
+        </div>
+
+        <div class="text-section">
+            <h2>English Translation</h2>
+            <div id="english-text"></div>
+        </div>
+
+        <div class="dictionary-container">
+            <h2>Dictionary</h2>
+            <div class="button-container">
+                <button id="save-button" style="display: none;"></button>
+            </div> <!-- Initially hidden -->
+            <iframe id="dictionary-iframe" class="dictionary-iframe" src=""></iframe>
+        </div>
+
+        <div class="text-section">
+            <h2>Segmented Image</h2>
+            <img id="segmented-image" class="segmented-image" src="" alt="Segmented Image">
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#get-button').click(function() {
+                $.post('/get_text', function(response) {
+                    var germanText = response.german_text;
+                    var germanWords = germanText.split(' ').map(word => `<span class="clickable-word">${word}</span>`).join(' ');
+                    $('#german-text').html(germanWords);
+                    $('#segmented-image').attr('src', 'data:image/png;base64,' + response.image);
+                });
+            });
+
+            $('#translate-button').click(function() {
+                $.post('/translate_text', function(response) {
+                    $('#english-text').text(response.english_text);
+                });
+            });
+
+            $('#reset-button').click(function() {
+                $.post('/reset_text', function(response) {
+                    $('#german-text').html('');
+                    $('#segmented-image').attr('src', '');
+                    $('#english-text').text('');
+                    $('#dictionary-iframe').attr('src', '');
+                    $('#save-button').hide().text('Save'); // Hide and reset button label
+                });
+            });
+
+            $('#everything-button').click(function() {
+                // Reset text first
+                $.post('/reset_text', function(response) {
+                    // After resetting, get German text
+                    $.post('/get_text', function(response) {
+                        var germanText = response.german_text;
+                        var germanWords = germanText.split(' ').map(word => `<span class="clickable-word">${word}</span>`).join(' ');
+                        $('#german-text').html(germanWords);
+                        $('#segmented-image').attr('src', 'data:image/png;base64,' + response.image);
+                        
+                        // After getting German text, translate it
+                        $.post('/translate_text', function(response) {
+                            $('#english-text').text(response.english_text);
+                        });
+                    });
+                });
+            });
+
+            // Add event listener for key presses
+            $(document).keyup(function(event) {
+                if (event.key === 'g' || event.key === 'G') {
+                    $('#get-button').click();
+                } else if (event.key === 't' || event.key === 'T') {
+                    $('#translate-button').click();
+                } else if (event.key === 'r' || event.key === 'R') {
+                    $('#reset-button').click();
+                }
+                else if (event.key === 'c' || event.key === 'C') {
+                    $('#everything-button').click();
+                }
+            });
+
+            // Add event delegation for dynamically added clickable words
+            $(document).on('click', '.clickable-word', function() {
+                var word = $(this).text();
+
+                // Remove punctuation marks from the word
+                var cleanedWord = word.replace(/[.,\/#!¿?$%\^&\*;:{}=\-_`'~()]/g, '');
+
+                var url = `https://www.wordreference.com/deen/${cleanedWord}`;
+                $('#dictionary-iframe').attr('src', url);
+
+                // Show save button and update label
+                var saveButton = $('#save-button');
+                saveButton.text(`Save word ${cleanedWord}`).show();
+
+                // Handle save button click
+                saveButton.off('click').click(function() {
+                    $.post('/save_word', { word: cleanedWord }, function(response) {
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
