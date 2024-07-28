@@ -7,3 +7,4 @@ Pillow
 pyautogui
 matplotlib
 transformers
+sentencepiece

@@ -57,12 +57,12 @@ class OCR:
             num_classes = len(classes)
             # Create the model instance
             self.model = SimpleCNN(num_classes, self.size_characters)
+            # Check device
+            self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
             # Load the saved model weights
-            self.model.load_state_dict(torch.load(os.path.join(self.folder_model, self.name_model)))
+            self.model.load_state_dict(torch.load(os.path.join(self.folder_model, self.name_model), map_location=self.device))
             # Set the model to evaluation mode
             self.model.eval()
-            # If using GPU
-            self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
             self.model.to(self.device)
 
             # To obtain the labels
@@ -463,5 +463,5 @@ if __name__ == "__main__":
     #ocr_object.plot_segmentation()
     
     # This line is to save ground truth (the text must correspond the image)
-    #ocr_object.save_characters("RAFA gewinnt $448! ")
+    #ocr_object.save_characters("Ob das gesund ist?!?")
     ocr_object.ranking_characters()
